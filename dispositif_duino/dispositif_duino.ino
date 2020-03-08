@@ -56,15 +56,16 @@
 #define EQUIPE_BLEUE              1
 
 //parametrage divers
-#define NBRE_DE_LEDS              11 //nombre de leds
+#define NBRE_DE_LEDS              10 //nombre de leds
 #define LEDS_BLEU                 1 //couleur bleue pour les leds
 #define LEDS_ORANGE               2 //couleur orange pour les leds
 
 //valeurs des servo_moteurs
 #define CREMAILLERE_STOP    96
-#define CREMAILLERE_BOUGE   5
-#define CONTREPOIDS_BLOQUE  90
-#define CONTREPOIDS_LIBERE  5
+#define CREMAILLERE_MONTE   5
+#define CREMAILLERE_DESCEND 140
+#define CONTREPOIDS_BLOQUE  10
+#define CONTREPOIDS_LIBERE  170
 
 //----------------------------------------------------------------------------------------------
 // DECLARATION VARIABLES: MOTEUR, CAMERA, LEDS,...
@@ -199,7 +200,10 @@ void loop()
   {
     bProgrammeDemarre=true; // le programme est demarre
     if (DEBUG)
+    {
       Serial.println("début programme");
+      Serial.println(contacteur_01);
+    }
     while(1)
     {
       if (DEBUG)
@@ -208,19 +212,33 @@ void loop()
       if(!phare_leve)
       {
         servo_contrepoids.write(CONTREPOIDS_LIBERE);
-        delay(4000);
+        delay(2000);
+        servo_cremaillere.write(CREMAILLERE_MONTE);
         while(analogRead(PIN_CONTACTEUR_02)>800)
         {
-          servo_cremaillere.write(CREMAILLERE_BOUGE);
-          delay(200);
+          servo_cremaillere.write(CREMAILLERE_MONTE);
         }
+
         servo_cremaillere.write(CREMAILLERE_STOP);
         phare_leve=true;
       }
       
       //on allume le phare
-      LED_PHARE(75,true);
+      int compteur=0;
+      while(compteur<200000){
+      LED_PHARE(75,false);
+      compteur++;
+      }
+      servo_cremaillere.write(CREMAILLERE_MONTE);
+      delay(1000);
+      servo_cremaillere.write(CREMAILLERE_STOP);
+      
     }
+  }
+  else
+  {
+    servo_cremaillere.write(CREMAILLERE_STOP+3);
+    delay(50);
   }
 
 
